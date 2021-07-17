@@ -31,13 +31,13 @@ services:
     networks:
       - internal
 
-  products:
+  webhooks:
     build:
       context: .
     image: dyte-webhooks-microservice
     env_file: docker-compose.env
     environment:
-      SERVICES: products
+      SERVICES: webhooks
     depends_on:
       - mongo
       - nats
