@@ -27,7 +27,7 @@ module.exports = {
 	actions: {
 
 		register: {
-			rest: "POST /register/:targetUrl",
+			rest: "GET /register/:targetUrl",
 			params: {
 				targetUrl: "string"
 			},
@@ -35,7 +35,7 @@ module.exports = {
 				const uuidv4 = require("uuid/v4");
 				const uniqueId = uuidv4();
 
-				let obj = await this.adapter.create({
+				let obj = await this.adapter.insert({
 					url: ctx.params.targetUrl,
 				});
 
@@ -44,7 +44,7 @@ module.exports = {
 		},
 
 		update: {
-			rest: "POST /update/:id/:targetUrl",
+			rest: "GET /update/:id/:targetUrl",
 			params: {
 				id: "string|min:1",
 				targetUrl: "string|min:1"
@@ -73,7 +73,7 @@ module.exports = {
 		list: {
 			rest: "GET /list",
 			async handler(ctx) {
-				let allObjects = await this.adapter.list();
+				let allObjects = await this.adapter.find();
 
 				return allObjects;
 			}
