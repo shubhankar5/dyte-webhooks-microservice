@@ -25,6 +25,7 @@
  *    }
  *  }
  */
+ // jask
 module.exports = {
 	// Namespace of nodes to segment your nodes on the same network.
 	namespace: "",
