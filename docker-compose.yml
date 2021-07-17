@@ -19,18 +19,6 @@ services:
     networks:
       - internal
 
-  greeter:
-    build:
-      context: .
-    image: dyte-webhooks-microservice
-    env_file: docker-compose.env
-    environment:
-      SERVICES: greeter
-    depends_on:
-      - nats
-    networks:
-      - internal
-
   webhooks:
     build:
       context: .

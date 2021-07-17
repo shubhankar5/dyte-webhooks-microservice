@@ -23,6 +23,8 @@
     "moleculer-repl": "^0.6.4"
   },
   "dependencies": {
+    "express": "^4.17.1",
+    "ip": "^1.1.5",
     "moleculer": "^0.14.13",
     "moleculer-db": "^0.8.4",
     "moleculer-db-adapter-mongo": "^0.4.7",
