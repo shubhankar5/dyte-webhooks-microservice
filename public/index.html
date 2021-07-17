@@ -486,6 +486,10 @@
 								{ field: "id", label: "ID", type: "text", paramType: "url", model: "webhooksID" },
 							], response: null, status: null, duration: null },
 
+							{ id: "trigger", action: "Trigger", rest: "/api/webhooks/trigger/:ip", method: "GET", fields: [
+								{ field: "ip", label: "IP", type: "number", paramType: "url" },
+							], response: null, status: null, duration: null },
+
 						]
 					},
 

@@ -1,10 +1,65 @@
 "use strict";
 
 const DbMixin = require("../mixins/db.mixin");
+const cluster = require('cluster');
+const https = require('https');
 
-/**
- * @typedef {import('moleculer').Context} Context Moleculer's Context
- */
+// Number of requests to process at a time parallely
+const maxRequests = 10;
+
+// Function to process a batch of maxRequests times URLs and send POST requests to them
+function processUrlBatch(urlBatch) {
+  	if(cluster.isMaster) {
+    	for(let i = 0; i < maxRequests; i++) {
+      		var worker = cluster.fork()
+    	}
+    	let j = 0;
+	    for(var wid in cluster.workers) {
+	      	j++;
+	      	if (j > maxRequests) 
+	      		return;
+      		cluster.workers[wid].send({
+	        	type: 'request',
+	        	counter: j,
+	      	});
+	    }
+	} 
+	else {
+	    process.on('message', function(message) {
+	      	if(message.type === 'request') {
+	        	let timeStamp = unixTime = Math.floor(Date.now() / 1000);
+	        	let data = JSON.stringify({
+	        	  ip: ctx.params.ip,
+	        	  timeStamp: timeStamp,
+	        	});
+				let options = {
+				  	hostname: 'localhost',
+				  	port: 3000,
+				  	path: urlBatch[message.counter],
+				  	method: 'POST',
+				  	headers: {
+				    	'Content-Type': 'application/json',
+				    	'Content-Length': data.length
+				  	}
+				}
+				let req = https.request(options, res => {
+				  console.log(`statusCode: ${res.statusCode}`)
+
+				  res.on('data', d => {
+				    process.stdout.write(d)
+				  })
+				})
+
+				req.on('error', error => {
+				  console.error(error)
+				})
+
+				req.write(data)
+				req.end()
+	      	}
+	    })
+	}
+}
 
 module.exports = {
 	name: "webhooks",
@@ -130,46 +185,13 @@ module.exports = {
 					} 
 				);
 
-				const cluster = require('cluster')
-				const https = require('https')
-				
-				// Number of requests to process at a time parallely
-				let maxRequests = 10
-
-			  	if(cluster.isMaster) {
-			    	for(let i = 0; i < maxRequests; i++) {
-			      		var worker = cluster.fork()
-			    	}
-			    	let j = 0;
-				    for(var wid in cluster.workers) {
-				      	j++;
-				      	if (j > maxRequests) 
-				      		return;
-			      		cluster.workers[wid].send({
-				        	type: 'request',
-				        	data: {
-				          		number: j
-				        	}
-				      	});
-				    }
-				} 
-				else {
-				    process.on('message', function(message) {
-				      	if(message.type === 'request') {
-				        	sendRequest(message.data.number, function(res,body){
-				          		var reqID = JSON.parse(body).headers['Request-Id']
-				          		var sCode = res.statusCode
-				          		process.send({
-				            		data: {
-				              			result: "Parallel Response #"+reqID+" returned a "+sCode
-				            		}
-				          		})
-				          		process.exit(0)
-				        	})
-				      	}
-				    })
+				// Run a loop the number of times the batch of urls has to be processed
+				let length = urlList.length ;
+			  	for(let i=0; i<length; i+=maxRequests){
+					let urlBatch = urlList.slice(i, i + maxRequests)
+					processUrlBatch();
 				}
-					
+
 				return 1;
 			}
 		},
