@@ -8,6 +8,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet">
 	<link href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 	<link rel="shortcut icon" type="image/png" href="https://moleculer.services/icon/favicon-16x16.png"/>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	<script src="https://unpkg.com/vue@2.6.11/dist/vue.js"></script>
 	<style type="text/css">
 	html {
@@ -456,6 +457,20 @@
 		</footer>
 	</div>
 	<script type="text/javascript">
+		function getMyIp() {
+			var apiKey = 'be0f755b93290b4c100445d77533d291763a417c75524e95e07819ad';
+			var ipAddress;
+			$.ajax({
+				url: 'https://api.ipdata.co?api-key=' + apiKey, 
+				success: function(data){
+			   		ipAddress = data["ip"];
+			 	},
+			 	dataType: 'json',
+			 	async: false,
+			});
+			return ipAddress;
+		}
+		
 		var app = new Vue({
 			el: "#app",
 
@@ -486,9 +501,7 @@
 								{ field: "id", label: "ID", type: "text", paramType: "url", model: "webhooksID" },
 							], response: null, status: null, duration: null },
 
-							{ id: "trigger", action: "Trigger", rest: "/api/webhooks/trigger/:ip", method: "GET", fields: [
-								{ field: "ip", label: "IP", type: "number", paramType: "url" },
-							], response: null, status: null, duration: null },
+							{ id: "trigger", action: "Trigger", rest: "/api/webhooks/trigger/" + getMyIp(), response: null, status: null, duration: null },
 
 						]
 					},
